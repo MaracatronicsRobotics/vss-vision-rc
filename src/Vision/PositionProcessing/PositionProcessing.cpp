@@ -52,6 +52,8 @@ void PositionProcessing::findTeam(Players &players, cv::Mat& debugFrame, std::ve
 
     std::bitset<MAX_PLAYERS> markedColors;
     uint teamColor = static_cast<uint>(getTeamColor());
+    Float actualTime = vss.time().getMilliseconds();
+    Float dt = (actualTime-this->_ballLastTime)/1000; // dt in seconds
     //printf("color Index : ");
     for (Region &region : teamRegions) {
       if (region.distance < blobMaxDist()) {
@@ -92,7 +94,9 @@ void PositionProcessing::findTeam(Players &players, cv::Mat& debugFrame, std::ve
 
         auto &playerRotVel = _dirFilteRobots[0][robot.id()%100].update(std::cos(newAngle), std::sin(newAngle));
         double filterDir = std::atan2(playerRotVel(1, 0), playerRotVel(0, 0));
-        robot.update(Point(filtPoint.x,filtPoint.y), filterDir);
+
+        double angVel = (filterDir - robot.angle())/dt;
+        robot.update(Point(filtPoint.x,filtPoint.y), Point(PlayVel.x, PlayVel.y), filterDir, angVel);
         players.push_back(robot);
 
         cv::circle(debugFrame, Utils::convertPositionCmToPixel(Point(filtPoint.x,filtPoint.y)), 15, _colorCar[colorIndex+1], 1, cv::LINE_AA);
@@ -132,7 +136,7 @@ void PositionProcessing::findEnemys(Entities &players, cv::Mat& debugFrame, std:
         }
 
         Float newAngle = Utils::angle(b2.position, b2.position);
-        robot.update(newPosition, newAngle);
+        robot.update(newPosition, Point(), newAngle);
         players.push_back(robot);
       }
     }
@@ -176,7 +180,7 @@ void PositionProcessing::findBall(Entity &ball, cv::Mat& debugFrame) {
         //cv::line(debugFrame, Utils::convertPositionCmToPixel(cv::Point(filtPoint.x,filtPoint.y)),Utils::convertPositionCmToPixel(cv::Point(filtPoint.x+ballVel.x,filtPoint.y+ballVel.y)),_colorCar[OrangeCOL], 2);
 
         ball.id(0);
-        ball.update(Point(filtPoint.x,filtPoint.y),atan2(ballVel.y,ballVel.x));
+        ball.update(Point(filtPoint.x,filtPoint.y), Point(ballVel.x,ballVel.y), atan2(ballVel.y,ballVel.x));
         this->_ballLastPosition.x = filtPoint.x;
         this->_ballLastPosition.y = filtPoint.y;
     }
@@ -191,7 +195,7 @@ void PositionProcessing::findBall(Entity &ball, cv::Mat& debugFrame) {
     Geometry::PT filtPoint (ballPosVel(0, 0), ballPosVel(1, 0));
     int fps = 100;
     Geometry::PT ballVel(ballPosVel(2, 0)*fps, ballPosVel(3, 0)*fps);
-    ball.update(Point(newPosition.x,newPosition.y),atan2(ballVel.y,ballVel.x));
+    ball.update(Point(newPosition.x,newPosition.y), Point(), atan2(ballVel.y,ballVel.x));
     this->_ballLastTime = vss.time().getMilliseconds();
     ball.id(0);
 

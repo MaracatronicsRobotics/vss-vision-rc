@@ -7,7 +7,9 @@ class Entity {
   uint m_id;
   Bool m_updated;
   Point m_position;
+  Point m_velocity;
   Float m_angle;
+  Float m_angleVelocity;
   uint m_team;
 
 public:
@@ -21,13 +23,15 @@ public:
   /**
    * Update entity's position and angle
    */
-  Void update(const Point &t_position, const Float &t_angle = 0);
+  Void update(const Point &t_position, const Point &t_velocity, const Float &t_angle = 0, const Float &t_angleVelocity = 0);
 
   /**
    * Get entity position
    * @return Point with the value of position in each axis
    */
   Point position();
+
+  Point velocity();
 
   /**
    * Get if entity is updated or not
@@ -45,6 +49,7 @@ public:
    * @return Float with the entity's angle in radians
    */
   Float angle();
+  Float angleVelocity();
 
   /**
    * Get entity's id number

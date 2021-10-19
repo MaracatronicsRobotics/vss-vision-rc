@@ -10,6 +10,8 @@ QT     += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+QT += network
+
 TARGET = VSS-VISION
 TEMPLATE = app
 
@@ -83,7 +85,16 @@ SOURCES += main.cpp\
     Utils/EnumsAndConstants.cpp \
     Windows/RobotWidget.cpp \
     trackconfigdialog.cpp \
-    Network/Network.cpp
+    Network/Network.cpp \
+    Network/replacerClient/replacerclient.cpp \
+    Network/pb/command.pb.cc \
+    Network/Netraw/netraw.cpp \
+    Network/pb/common.pb.cc \
+    Network/pb/packet.pb.cc \
+    Network/pb/replacement.pb.cc \
+    Network/pb/vssref_command.pb.cc \
+    Network/pb/vssref_common.pb.cc \
+    Network/pb/vssref_placement.pb.cc
 
 HEADERS  += \
   Entity/Entity.h \
@@ -124,7 +135,18 @@ HEADERS  += \
     Utils/BetterEnum.h \
     trackconfigdialog.h \
     Windows/FileConstants.h\
-    Network/Network.h
+    Network/Network.h \
+    Network/replacerClient/replacerclient.h \
+    Network/Netraw/netraw.h \
+    Network/pb/command.pb.h \
+    Network/pb/common.pb.h \
+    Network/pb/packet.pb.h \
+    Network/pb/replacement.pb.h \
+    Network/pb/vssref_command.pb.h \
+    Network/pb/vssref_common.pb.h \
+    Network/pb/vssref_placement.pb.h \
+    Network/Util/util.h
+
 
 FORMS  += \
   visionconfigdialog.ui \
@@ -180,6 +202,7 @@ unix:!macx{
   }
   LIBS += -ltbb
   LIBS += -lsfml-system -lsfml-network
+  LIBS += -L/usr/local/lib -lprotobuf
 
 }
 
