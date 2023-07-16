@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <opencv_storage>
 <Default>
-  <minSize>95</minSize>
+  <minSize>72</minSize>
   <maxSize>1000</maxSize>
   <minSizeBall>784</minSizeBall>
   <maxSizeBall>733</maxSizeBall>
