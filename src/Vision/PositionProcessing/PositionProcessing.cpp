@@ -2,9 +2,9 @@
 
 #define INVALID_ROBOT_ID 255
 #define ROBOT_0_PATTERN_COMPONENTS                                             \
-  { Color::PINK, Color::CYAN }
-#define ROBOT_1_PATTERN_COMPONENTS                                             \
   { Color::CYAN, Color::GREEN }
+#define ROBOT_1_PATTERN_COMPONENTS                                             \
+  { Color::PINK, Color::GREEN }
 #define ROBOT_2_PATTERN_COMPONENTS                                             \
   { Color::PINK, Color::CYAN }
 
@@ -66,7 +66,17 @@ void PositionProcessing::findTeam(Players &players, cv::Mat &debugFrame,
 
   for (Region &region : teamRegions) {
     Blobs blobs = region.blobs;
-    Blob b1 = blobs[0], b2 = blobs[1], b3 = blobs[2];
+    Blob b1, b2, b3;
+
+    if (blobs.size() == 3) {
+      b1 = blobs[0];
+      b2 = blobs[1];
+      b3 = blobs[2];
+    } else {
+      b1 = blobs[0];
+      b2 = blobs[0];
+      b3 = blobs[0];
+    }
 
     uint8_t robotId = INVALID_ROBOT_ID;
     std::vector<int> regionColors;
@@ -251,6 +261,8 @@ void PositionProcessing::filterPattern(Regions &regions) {
   Regions f_regions;
   // Sort regions by leftmost blob
   for (auto &r : regions) {
+    if (r.blobs.size() < 3)
+      continue;
     if (r.blobs[0].position.y <
         (r.blobs[1].position.y + r.blobs[2].position.y) /
             2) // Primary blob on top
@@ -280,15 +292,20 @@ PositionProcessing::FieldRegions PositionProcessing::pairBlobs() {
         blob[teamColor][i].color = teamColor;
         secondary = this->getNearestSecondary(blob[teamColor][i]);
         if (secondary.size() == 2) {
-
           current.blobs.push_back(blob[teamColor][i]);
           current.blobs.push_back(secondary[0]);
           current.blobs.push_back(secondary[1]);
           current.team = teamColor;
 
           result.team.push_back(current);
-        } else
-          break;
+        } else {
+          current.blobs.push_back(blob[teamColor][i]);
+          current.blobs.push_back(blob[teamColor][i]);
+          current.blobs.push_back(blob[teamColor][i]);
+          current.team = teamColor;
+
+          result.team.push_back(current);
+        }
       } else
         break;
     }
@@ -308,7 +325,7 @@ void PositionProcessing::setUp(std::string var, int value) {
   } else if (var == MAXSIZEBALL) {
     this->_maxSizeBall = value;
   } else if (var == BLOBMAXDIST) {
-    this->_blobMaxDist = value;
+    this->_blobMaxDist = 30;
   } else if (var == MYTEAM) {
     this->_teamId = value;
   } else if (var == ENEMYTEAM) {
