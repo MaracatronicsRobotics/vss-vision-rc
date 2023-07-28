@@ -72,10 +72,6 @@ void PositionProcessing::findTeam(Players &players, cv::Mat &debugFrame,
       b1 = blobs[0];
       b2 = blobs[1];
       b3 = blobs[2];
-    } else {
-      b1 = blobs[0];
-      b2 = blobs[0];
-      b3 = blobs[0];
     }
 
     uint8_t robotId = INVALID_ROBOT_ID;
@@ -261,8 +257,6 @@ void PositionProcessing::filterPattern(Regions &regions) {
   Regions f_regions;
   // Sort regions by leftmost blob
   for (auto &r : regions) {
-    if (r.blobs.size() < 3)
-      continue;
     if (r.blobs[0].position.y <
         (r.blobs[1].position.y + r.blobs[2].position.y) /
             2) // Primary blob on top
@@ -299,12 +293,7 @@ PositionProcessing::FieldRegions PositionProcessing::pairBlobs() {
 
           result.team.push_back(current);
         } else {
-          current.blobs.push_back(blob[teamColor][i]);
-          current.blobs.push_back(blob[teamColor][i]);
-          current.blobs.push_back(blob[teamColor][i]);
-          current.team = teamColor;
-
-          result.team.push_back(current);
+          break;
         }
       } else
         break;
@@ -325,7 +314,7 @@ void PositionProcessing::setUp(std::string var, int value) {
   } else if (var == MAXSIZEBALL) {
     this->_maxSizeBall = value;
   } else if (var == BLOBMAXDIST) {
-    this->_blobMaxDist = 30;
+    this->_blobMaxDist = 25;
   } else if (var == MYTEAM) {
     this->_teamId = value;
   } else if (var == ENEMYTEAM) {
